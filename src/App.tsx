@@ -13,9 +13,11 @@ export default function App() {
   }
 
   return (
-    <main className="flex flex-col gap-4 items-center justify-center h-screen">
+    <main className="flex flex-col gap-4 items-center justify-center h-full">
       <h1 className="text-4xl font-bold">Cidade Dorme</h1>
-      <Button onClick={handleCreateRoom}>Create a new room</Button>
+      <div>
+        <Button onClick={handleCreateRoom}>Create a new room</Button>
+      </div>
     </main>
   );
 }

@@ -6,7 +6,12 @@ import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import Card from "./Card";
 
-export default function ManagePlayers({ players }: { players: any }) {
+interface Props {
+  players: any;
+  isNarrator: boolean;
+}
+
+export default function Players({ players, isNarrator }: Props) {
   const murderPlayer = useMutation(api.players.murder);
   const banPlayer = useMutation(api.players.ban);
   const revivePlayer = useMutation(api.players.revive);
@@ -39,7 +44,7 @@ export default function ManagePlayers({ players }: { players: any }) {
   };
 
   return (
-    <div className="flex lg:flex-row flex-col items-start justify-center gap-4 lg:w-fit w-full">
+    <div className="flex lg:flex-row flex-col lg:items-start items-center justify-center gap-4 lg:w-fit w-full">
       {alivePlayers?.length > 0 && (
         <Card title="Alive Players">
           <div className="flex flex-col items-center justify-center gap-4 pt-2">
@@ -53,27 +58,29 @@ export default function ManagePlayers({ players }: { players: any }) {
                   >
                     <p
                       className={
-                        (player.type === "murderer" ? "text-red-400" : "") +
-                        (player.type === "angel" ? "text-yellow-400" : "")
+                        (isNarrator && player.type === "murderer"
+                          ? "text-red-400"
+                          : "") +
+                        (isNarrator && player.type === "angel"
+                          ? "text-yellow-400"
+                          : "")
                       }
                     >
                       {player.name}
                     </p>
-                    <div className="flex gap-4">
-                      <Button
-                        className="w-fit"
-                        onClick={() => handleBan(player._id)}
-                      >
-                        Ban
-                      </Button>
-                      <Button
-                        className="w-fit"
-                        variant="destructive"
-                        onClick={() => handleMurder(player._id)}
-                      >
-                        Kill
-                      </Button>
-                    </div>
+                    {isNarrator && (
+                      <div className="flex gap-4">
+                        <Button onClick={() => handleBan(player._id)}>
+                          Ban
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleMurder(player._id)}
+                        >
+                          Kill
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )
             )}
@@ -93,20 +100,26 @@ export default function ManagePlayers({ players }: { players: any }) {
                   >
                     <p
                       className={
-                        (player.type === "murderer" ? "text-red-400" : "") +
-                        (player.type === "angel" ? "text-yellow-400" : "")
+                        (isNarrator && player.type === "murderer"
+                          ? "text-red-400"
+                          : "") +
+                        (isNarrator && player.type === "angel"
+                          ? "text-yellow-400"
+                          : "")
                       }
                     >
                       {player.name}
                     </p>
-                    <div className="flex gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleRevive(player._id)}
-                      >
-                        Revive
-                      </Button>
-                    </div>
+                    {isNarrator && (
+                      <div className="flex gap-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => handleRevive(player._id)}
+                        >
+                          Revive
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )
             )}

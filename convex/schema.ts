@@ -8,6 +8,11 @@ export default defineSchema({
       angels: v.number(),
     }),
     playing: v.boolean(),
+    status: v.union(
+      v.literal("Waiting"),
+      v.literal("Playing"),
+      v.literal("Ended")
+    ),
   }),
 
   players: defineTable({

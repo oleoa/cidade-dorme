@@ -154,9 +154,15 @@ export const revive = mutation({
   },
   handler: async (ctx, args) => {
     const player = await ctx.db.get(args.player_id);
-    if (!player || player.alive) return false;
+    if (!player) return { success: false, message: "Player not found" };
+    if (player.alive)
+      return { success: false, message: "Player already alive" };
+    const room = await ctx.db.get(player.room_id);
+    if (!room) return { success: false, message: "Room not found" };
+    if (!room.playing)
+      return { success: false, message: "Game " + room.status };
     await ctx.db.patch(args.player_id, { alive: true, death_reason: null });
-    return true;
+    return { success: true, message: "Player revived" };
   },
 });
 
@@ -197,13 +203,27 @@ export const murder = mutation({
   },
   handler: async (ctx, args) => {
     const player = await ctx.db.get(args.player_id);
-    if (!player || !player.alive) return false;
-    if (player.type === "narrator" || player.type === "murderer") return false;
+    if (!player) return { success: false, message: "Player not found" };
+    if (!player.alive)
+      return { success: false, message: "Player already dead" };
+    if (player.type === "murderer")
+      return {
+        success: false,
+        message: "Murderer cannot be murdered",
+      };
+    if (player.type === "narrator")
+      return {
+        success: false,
+        message: "Narrator cannot be murdered",
+      };
+    const room = await ctx.db.get(player.room_id);
+    if (!room) return { success: false, message: "Room not found" };
+    if (!room.playing) return { success: false, message: "Game paused" };
     await ctx.db.patch(args.player_id, {
       alive: false,
       death_reason: "murdered",
     });
-    return true;
+    return { success: true, message: "Player murdered" };
   },
 });
 
@@ -213,12 +233,68 @@ export const ban = mutation({
   },
   handler: async (ctx, args) => {
     const player = await ctx.db.get(args.player_id);
-    if (!player || !player.alive) return false;
-    if (player.type === "narrator") return false;
+    if (!player) return { success: false, message: "Player not found" };
+    if (!player.alive)
+      return { success: false, message: "Player already dead" };
+    if (player.type === "narrator")
+      return { success: false, message: "Narrator cannot be banned" };
+    const room = await ctx.db.get(player.room_id);
+    if (!room) return { success: false, message: "Room not found" };
+    if (!room.playing) return { success: false, message: "Game paused" };
     await ctx.db.patch(args.player_id, {
       alive: false,
       death_reason: "banned",
     });
+    return { success: true, message: "Player banned" };
+  },
+});
+
+export const leave = mutation({
+  args: {
+    player_id: v.id("players"),
+  },
+  handler: async (ctx, args) => {
+    const player = await ctx.db.get(args.player_id);
+    if (!player) return false;
+    if (player.type === "narrator") return false;
+    if (player.type === "murderer") return false;
+    if (player.type === "angel") return false;
+    await ctx.db.delete(args.player_id);
+    return true;
+  },
+});
+
+export const setNarrator = mutation({
+  args: {
+    narrator: v.id("players"),
+  },
+  handler: async (ctx, args) => {
+    const player = await ctx.db.get(args.narrator);
+    if (!player) return false;
+    const players = await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("room_id"), player.room_id))
+      .collect();
+    for (const p of players) {
+      await ctx.db.patch(p._id, { type: "unknown" });
+    }
+    await ctx.db.patch(args.narrator, { type: "narrator" });
+    return player.name;
+  },
+});
+
+export const unsetNarrator = mutation({
+  args: {
+    room_id: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    const players = await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("room_id"), args.room_id))
+      .collect();
+    for (const p of players) {
+      await ctx.db.patch(p._id, { type: "unknown" });
+    }
     return true;
   },
 });

@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { shuffle } from "../src/lib/utils";
 
-export const terminate = mutation({
+export const deleteGame = mutation({
   args: {
     room_id: v.id("rooms"),
   },
@@ -19,6 +19,15 @@ export const terminate = mutation({
   },
 });
 
+export const newGame = mutation({
+  args: {
+    room_id: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.room_id, { status: "Waiting", playing: false });
+  },
+});
+
 export const create = mutation({
   handler: async (ctx) => {
     const newRoomId = await ctx.db.insert("rooms", {
@@ -27,8 +36,18 @@ export const create = mutation({
         angels: 1,
       },
       playing: false,
+      status: "Waiting",
     });
     return newRoomId;
+  },
+});
+
+export const endGame = mutation({
+  args: {
+    room_id: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.room_id, { status: "Ended", playing: false });
   },
 });
 
@@ -81,7 +100,8 @@ export const start = mutation({
       .collect();
     if (players.length < 5) return false;
 
-    const narrator = 1;
+    const narrator =
+      players.filter((p) => p.type == "narrator").length >= 1 ? 0 : 1;
     const murderers = Number(room.rules.murderers);
     const angels = Number(room.rules.angels);
     const citizens = players.length - murderers - angels - narrator;
@@ -96,16 +116,17 @@ export const start = mutation({
 
     // Shuffle the types array
     const shuffledTypes = shuffle(types);
+    const filteredPlayers = players.filter((p) => p.type != "narrator");
 
     // Assign types to players and set all as alive
-    for (let i = 0; i < players.length; i++) {
-      await ctx.db.patch(players[i]._id, {
+    for (let i = 0; i < filteredPlayers.length; i++) {
+      await ctx.db.patch(filteredPlayers[i]._id, {
         type: shuffledTypes[i],
         alive: true,
       });
     }
 
-    await ctx.db.patch(args.room_id, { playing: true });
+    await ctx.db.patch(args.room_id, { playing: true, status: "Playing" });
     return true;
   },
 });

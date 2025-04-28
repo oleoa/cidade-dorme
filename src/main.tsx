@@ -1,14 +1,19 @@
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
+
 import { createRoot } from "react-dom/client";
-import { ClerkProvider, useAuth } from "@clerk/clerk-react";
+import {
+  ClerkProvider,
+  RedirectToSignIn,
+  SignedIn,
+  SignedOut,
+  useAuth,
+} from "@clerk/clerk-react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import ProtectedRoute from "./ProtectedRoute";
 
 import "./index.css";
 import App from "./App.tsx";
-import Profile from "./Profile.tsx";
 import Room from "./Room.tsx";
 
 // CLERK
@@ -23,41 +28,43 @@ import Game from "./Game.tsx";
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<App />} />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/room/:room_id"
-                element={
-                  <ProtectedRoute>
+  // <StrictMode>
+  <BrowserRouter>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route
+              path="/room/:room_id"
+              element={
+                <>
+                  <SignedIn>
                     <Room />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/game/:room_id"
-                element={
-                  <ProtectedRoute>
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/game/:room_id"
+              element={
+                <>
+                  <SignedIn>
                     <Game />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Layout>
-        </ConvexProviderWithClerk>
-      </ClerkProvider>
-    </BrowserRouter>
-  </StrictMode>
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+          </Routes>
+        </Layout>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
+  </BrowserRouter>
+  // </StrictMode>
 );

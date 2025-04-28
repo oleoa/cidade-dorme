@@ -6,9 +6,9 @@ export default function AlivePlayers({ players }: { players: any }) {
   const deadPlayers = players.filter((player: any) => !player.alive);
 
   return (
-    <div className="flex items-start justify-center gap-4">
+    <div className="flex lg:flex-row flex-col lg:items-center items-start justify-center gap-4 w-full">
       {alivePlayers.length > 0 && (
-        <div className="flex flex-col items-center justify-center gap-4 border-2 rounded-lg p-4">
+        <div className="flex flex-col items-center justify-center gap-4 border-2 rounded-lg p-4 lg:w-fit w-full">
           <h2 className="text-xl text-green-400 font-bold">Alive Players</h2>
           <Separator />
           <div className="flex flex-col items-center justify-center gap-4">
@@ -19,7 +19,7 @@ export default function AlivePlayers({ players }: { players: any }) {
         </div>
       )}
       {deadPlayers.length > 0 && (
-        <div className="flex flex-col items-center justify-center gap-4 border-2 rounded-lg p-4">
+        <div className="flex flex-col items-center justify-center gap-4 border-2 rounded-lg p-4 lg:w-fit w-full">
           <h2 className="text-xl text-red-400 font-bold">Dead Players</h2>
           <Separator />
           <div className="flex flex-col items-center justify-center gap-4">
