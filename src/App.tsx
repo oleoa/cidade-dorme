@@ -1,3 +1,26 @@
+import { Button } from "./components/ui/button";
+import { useMutation } from "convex/react";
+import { api } from "../convex/_generated/api";
+import { useNavigate } from "react-router";
+
 export default function App() {
-  return <div>Hello World</div>;
+  const createRoom = useMutation(api.rooms.create);
+  const navigate = useNavigate();
+
+  async function handleCreateRoom() {
+    const newRoomId = await createRoom();
+    navigate(`/room/${newRoomId}`);
+  }
+
+  function handleJoinRoom() {
+    console.log("join room");
+  }
+
+  return (
+    <main className="flex flex-col gap-4 items-center justify-center h-screen">
+      <h1 className="text-4xl font-bold">Cidade Dorme</h1>
+      <Button onClick={handleCreateRoom}>Create a new room</Button>
+      <Button onClick={handleJoinRoom}>Join a room</Button>
+    </main>
+  );
 }

@@ -4,10 +4,13 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
+import ProtectedRoute from "./ProtectedRoute";
 
 import "./index.css";
 import App from "./App.tsx";
 import Profile from "./Profile.tsx";
+import Room from "./Room.tsx";
+
 // CLERK
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
@@ -26,7 +29,15 @@ createRoot(document.getElementById("root")!).render(
           <Layout>
             <Routes>
               <Route path="/" element={<App />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/room/:room_id" element={<Room />} />
             </Routes>
           </Layout>
         </ConvexProviderWithClerk>
