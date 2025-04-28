@@ -1,14 +1,17 @@
 import { Id } from "convex/_generated/dataModel";
 import { api } from "../convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
-import { useParams } from "react-router";
-import Players from "./components/Players";
+import { useNavigate, useParams } from "react-router";
+import Players from "./components/RoomPlayers";
 import Rules from "./components/Rules";
 import { Button } from "./components/ui/button";
 import { toast } from "sonner";
 
 export default function Room() {
+  const populatePlayers = useMutation(api.players.createFaleExamples);
+
   const { room_id } = useParams();
+  const navigate = useNavigate();
 
   const room = useQuery(api.rooms.get, {
     room_id: room_id as Id<"rooms">,
@@ -61,6 +64,7 @@ export default function Room() {
     }
 
     toast.success("Game started");
+    navigate(`/game/${room_id}`);
   }
 
   if (!room || !players)
@@ -73,10 +77,14 @@ export default function Room() {
   return (
     <main className="flex items-center justify-center h-screen">
       <div className="flex flex-col gap-4">
-        <div className="flex gap-4">
-          <Players players={players} />
-          <Rules room_id={room_id as Id<"rooms">} />
-        </div>
+        <Players players={players} />
+        <Rules room_id={room_id as Id<"rooms">} />
+        <Button
+          onClick={() => populatePlayers({ room_id: room_id as Id<"rooms"> })}
+          className="w-full"
+        >
+          Populate
+        </Button>
         <Button onClick={startGameHandler} className="w-full">
           Start
         </Button>

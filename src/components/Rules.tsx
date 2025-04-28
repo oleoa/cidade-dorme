@@ -25,8 +25,8 @@ export default function Rules({ room_id }: { room_id: Id<"rooms"> }) {
   }, [murderers, angels, room_id, updateRules]);
 
   return (
-    <div className="flex gap-4 border-2 border-black p-2 rounded-lg">
-      <div className="flex flex-col gap-2">
+    <div className="flex gap-4 border-2 border-black p-2 rounded-lg h-fit">
+      <div className="flex flex-col gap-2 w-full">
         <h2 className="text-2xl font-bold">Rules</h2>
         <Separator />
         <div className="flex flex-col gap-2">

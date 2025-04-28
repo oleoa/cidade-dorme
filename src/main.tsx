@@ -19,6 +19,7 @@ if (!PUBLISHABLE_KEY) {
 
 // CONVEX
 import Layout from "./Layout.tsx";
+import Game from "./Game.tsx";
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 createRoot(document.getElementById("root")!).render(
@@ -37,7 +38,22 @@ createRoot(document.getElementById("root")!).render(
                   </ProtectedRoute>
                 }
               />
-              <Route path="/room/:room_id" element={<Room />} />
+              <Route
+                path="/room/:room_id"
+                element={
+                  <ProtectedRoute>
+                    <Room />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/game/:room_id"
+                element={
+                  <ProtectedRoute>
+                    <Game />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </Layout>
         </ConvexProviderWithClerk>

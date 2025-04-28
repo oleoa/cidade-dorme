@@ -2,6 +2,23 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { shuffle } from "../src/lib/utils";
 
+export const terminate = mutation({
+  args: {
+    room_id: v.id("rooms"),
+  },
+  handler: async (ctx, args) => {
+    const players = await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("room_id"), args.room_id))
+      .collect();
+    for (const player of players) {
+      await ctx.db.delete(player._id);
+    }
+    await ctx.db.delete(args.room_id);
+    return true;
+  },
+});
+
 export const create = mutation({
   handler: async (ctx) => {
     const newRoomId = await ctx.db.insert("rooms", {
@@ -10,7 +27,6 @@ export const create = mutation({
         angels: 1,
       },
       playing: false,
-      nights: [],
     });
     return newRoomId;
   },
@@ -68,7 +84,7 @@ export const start = mutation({
     const narrator = 1;
     const murderers = Number(room.rules.murderers);
     const angels = Number(room.rules.angels);
-    const citizens = 5 - murderers - angels - narrator;
+    const citizens = players.length - murderers - angels - narrator;
     if (citizens < 0) return false;
 
     const types = [
@@ -89,13 +105,7 @@ export const start = mutation({
       });
     }
 
-    const newNight = {
-      murdered: [],
-      saved: [],
-      baned: null,
-    };
-
-    await ctx.db.patch(args.room_id, { playing: true, nights: [newNight] });
+    await ctx.db.patch(args.room_id, { playing: true });
     return true;
   },
 });

@@ -12,15 +12,10 @@ export default function App() {
     navigate(`/room/${newRoomId}`);
   }
 
-  function handleJoinRoom() {
-    console.log("join room");
-  }
-
   return (
     <main className="flex flex-col gap-4 items-center justify-center h-screen">
       <h1 className="text-4xl font-bold">Cidade Dorme</h1>
       <Button onClick={handleCreateRoom}>Create a new room</Button>
-      <Button onClick={handleJoinRoom}>Join a room</Button>
     </main>
   );
 }

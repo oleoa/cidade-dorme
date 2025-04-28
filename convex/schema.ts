@@ -8,14 +8,8 @@ export default defineSchema({
       angels: v.number(),
     }),
     playing: v.boolean(),
-    nights: v.array(
-      v.object({
-        murdered: v.array(v.id("players")),
-        saved: v.array(v.id("players")),
-        baned: v.union(v.id("players"), v.null()),
-      })
-    ),
   }),
+
   players: defineTable({
     name: v.string(),
     email: v.string(),
@@ -28,5 +22,6 @@ export default defineSchema({
       v.literal("citizen")
     ),
     alive: v.boolean(),
+    death_reason: v.union(v.string(), v.null()),
   }),
 });
