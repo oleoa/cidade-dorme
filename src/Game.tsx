@@ -7,13 +7,13 @@ import Players from "./components/Players";
 import { Button } from "./components/ui/button";
 import { useMutation } from "convex/react";
 import { useNavigate } from "react-router";
+import DeleteRoom from "./components/DeleteRoom";
 
 export default function Game() {
   const navigate = useNavigate();
 
-  const deleteGame = useMutation(api.rooms.deleteGame);
   const endGame = useMutation(api.rooms.endGame);
-  // const leave = useMutation(api.players.leave);
+
   const newGame = useMutation(api.rooms.newGame);
 
   const { room_id } = useParams();
@@ -63,8 +63,13 @@ export default function Game() {
       <Type
         type={player ? player.type : "spectator"}
         gameStatus={room.status}
+        onlyOneMurderer={room.rules.murderers === 1}
       />
-      <Players players={players} isNarrator={player.type === "narrator"} />
+      <Players
+        players={players}
+        isNarrator={player.type === "narrator"}
+        isAMurderer={player.type === "murderer"}
+      />
       {player.type == "narrator" && (
         <div className="flex flex-row gap-4 pb-4">
           {room.status == "Playing" && (
@@ -88,32 +93,9 @@ export default function Game() {
               New Game
             </Button>
           )}
-          <Button
-            variant="destructive"
-            className="w-fit"
-            onClick={() => {
-              deleteGame({ room_id: room_id as Id<"rooms"> });
-              navigate("/");
-            }}
-          >
-            Delete Game
-          </Button>
+          <DeleteRoom room_id={room_id as Id<"rooms">} />
         </div>
       )}
-      {/* {player &&
-        player.type != "narrator" &&
-        player.type != "murderer" &&
-        player.type != "angel" && (
-          <Button
-            variant="destructive"
-            onClick={() => {
-              leave({ player_id: player._id });
-              navigate("/");
-            }}
-          >
-            Leave
-          </Button>
-        )} */}
     </main>
   );
 }

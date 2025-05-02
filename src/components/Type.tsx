@@ -1,35 +1,36 @@
 import { Separator } from "./ui/separator";
 
-export default function Type({
-  type,
-  gameStatus,
-}: {
+interface Props {
   type: string;
   gameStatus: string;
-}) {
+  onlyOneMurderer: boolean;
+}
+
+export default function Type({ type, gameStatus, onlyOneMurderer }: Props) {
+  let playerIs = "";
+  if (type === "murderer") {
+    if (onlyOneMurderer) playerIs = "You are the murderer";
+    else playerIs = "You are a murderer";
+  } else if (type === "angel") {
+    playerIs = "You are the angel";
+  } else if (type === "narrator") {
+    playerIs = "You are the narrator";
+  } else if (type === "citizen") {
+    playerIs = "You are a citizen";
+  } else if (type === "spectator") {
+    playerIs = "You are a spectator";
+  }
+
+  let playerColor = "";
+  if (type === "murderer") playerColor = "text-red-400";
+  else if (type === "angel") playerColor = "text-yellow-400";
+  else if (type === "narrator") playerColor = "text-blue-400";
+  else if (type === "citizen") playerColor = "text-green-400";
+  else if (type === "spectator") playerColor = "text-gray-400";
+
   return (
     <div className="flex flex-col items-center justify-center gap-2 lg:w-fit w-full">
-      <h2
-        className={
-          "text-2xl font-bold " +
-          (type === "murderer" ? "text-red-400" : "") +
-          (type === "angel" ? "text-yellow-400" : "") +
-          (type === "narrator" ? "text-blue-400" : "") +
-          (type === "spectator" ? "text-gray-400" : "") +
-          (type === "citizen" ? "text-green-400" : "")
-        }
-      >
-        You are{" "}
-        {type === "murderer"
-          ? "the murderer"
-          : type === "angel"
-            ? "the angel"
-            : type === "narrator"
-              ? "the narrator"
-              : type === "citizen"
-                ? "a citizen"
-                : "a spectator"}
-      </h2>
+      <h2 className={"text-2xl font-bold " + playerColor}>{playerIs}</h2>
       <p>{gameStatus}</p>
       <Separator />
     </div>

@@ -1,16 +1,20 @@
+import { Link, Navigate, useNavigate, useParams } from "react-router";
+
+import { useMutation, useQuery } from "convex/react";
+
 import { Id } from "convex/_generated/dataModel";
 import { api } from "../convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
-import { Link, Navigate, useNavigate, useParams } from "react-router";
-import Rules from "./components/Rules";
+
 import { Button } from "./components/ui/button";
-import { toast } from "sonner";
 import Card from "./components/Card";
+import { toast } from "sonner";
+
+import Rules from "./components/Rules";
+import DeleteRoom from "./components/DeleteRoom";
 
 export default function Room() {
   const navigate = useNavigate();
-
-  // const populatePlayers = useMutation(api.players.createFaleExamples);
+  const populatePlayers = useMutation(api.players.createFaleExamples);
 
   const { room_id } = useParams();
   const room_id_arg = room_id as Id<"rooms">;
@@ -19,8 +23,6 @@ export default function Room() {
   });
 
   const startGame = useMutation(api.rooms.start);
-
-  const deleteGame = useMutation(api.rooms.deleteGame);
 
   const createPlayer = useMutation(api.players.create);
   createPlayer({
@@ -53,11 +55,6 @@ export default function Room() {
   function shareRoom() {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Room URL copied to clipboard");
-  }
-
-  function terminateHandler() {
-    deleteGame({ room_id: room_id_arg });
-    navigate("/");
   }
 
   if (room === undefined || players === undefined) {
@@ -103,16 +100,14 @@ export default function Room() {
         <Card title="Rules">
           <Rules room_id={room_id_arg} />
         </Card>
-        {/* <Button onClick={() => populatePlayers({ room_id: room_id_arg })}>
+        <Button onClick={() => populatePlayers({ room_id: room_id_arg })}>
           Populate
-        </Button> */}
+        </Button>
         <Button onClick={startGameHandler}>Start</Button>
         <Button variant="outline" onClick={shareRoom}>
           Share
         </Button>
-        <Button variant="destructive" onClick={terminateHandler}>
-          Delete
-        </Button>
+        <DeleteRoom room_id={room_id_arg} />
       </div>
     </main>
   );

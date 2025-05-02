@@ -9,9 +9,10 @@ import Card from "./Card";
 interface Props {
   players: any;
   isNarrator: boolean;
+  isAMurderer: boolean;
 }
 
-export default function Players({ players, isNarrator }: Props) {
+export default function Players({ players, isNarrator, isAMurderer }: Props) {
   const murderPlayer = useMutation(api.players.murder);
   const banPlayer = useMutation(api.players.ban);
   const revivePlayer = useMutation(api.players.revive);
@@ -58,7 +59,8 @@ export default function Players({ players, isNarrator }: Props) {
                   >
                     <p
                       className={
-                        (isNarrator && player.type === "murderer"
+                        ((isNarrator || isAMurderer) &&
+                        player.type === "murderer"
                           ? "text-red-400"
                           : "") +
                         (isNarrator && player.type === "angel"
